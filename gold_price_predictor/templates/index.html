@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dự đoán giá vàng</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dự đoán giá vàng</h1>
+        <form method="POST">
+            <label for="open">Giá mở cửa:</label>
+            <input type="text" name="open" required>
+            
+            <label for="high">Giá cao nhất:</label>
+            <input type="text" name="high" required>
+            
+            <label for="low">Giá thấp nhất:</label>
+            <input type="text" name="low" required>
+            
+            <label for="volume">Khối lượng giao dịch:</label>
+            <input type="text" name="volume" required>
+            
+            <label for="chg">% Thay đổi:</label>
+            <input type="text" name="chg" required>
+            
+            <label for="actual_price">Giá thực tế:</label>
+            <input type="text" name="actual_price" required>
+            
+            <button type="submit">Dự đoán</button>
+        </form>
+
+        {% if prediction %}
+        <h2>Kết quả dự đoán:</h2>
+        <ul>
+            {% for name, error in errors.items() %}
+                <li>{{ name }}: Dự đoán = {{ error.pred }}, Sai số tuyệt đối = {{ error.abs_error }}, Sai số tương đối = {{ error.rel_error }}%</li>
+            {% endfor %}
+        </ul>
+        <p>Giá thực tế: {{ actual_price }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
