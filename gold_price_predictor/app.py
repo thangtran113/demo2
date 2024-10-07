@@ -1,12 +1,10 @@
-from flask import Flask, render_template, request
+import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import StackingRegressor
 from sklearn.model_selection import train_test_split
-
-app = Flask(__name__)
 
 # Huấn luyện các mô hình
 def train_models():
@@ -36,39 +34,30 @@ def train_models():
 
 models = train_models()
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    prediction = None
-    actual_price = None
-    errors = {}
+# Giao diện người dùng bằng Streamlit
+st.title("Dự đoán giá vàng bằng các mô hình học máy")
+
+# Nhập liệu từ người dùng
+open_price = st.number_input("Giá mở cửa (Open)", value=0.0)
+high_price = st.number_input("Giá cao nhất (High)", value=0.0)
+low_price = st.number_input("Giá thấp nhất (Low)", value=0.0)
+volume = st.number_input("Khối lượng giao dịch (Volume)", value=0.0)
+chg = st.number_input("Phần trăm thay đổi (Chg%)", value=0.0)
+actual_price = st.number_input("Giá thực tế", value=0.0)
+
+# Dự đoán khi người dùng nhấn nút
+if st.button("Dự đoán"):
+    input_data = [open_price, high_price, low_price, volume, chg]
+
+    # Dự đoán bằng các mô hình đã huấn luyện
+    predictions = {name: model.predict([input_data])[0] for name, model in models.items()}
     
-    if request.method == "POST":
-        input_data = [
-            float(request.form['open']),
-            float(request.form['high']),
-            float(request.form['low']),
-            float(request.form['volume']),
-            float(request.form['chg'])
-        ]
-        actual_price = float(request.form['actual_price'])
-
-        # Dự đoán bằng các mô hình đã huấn luyện
-        predictions = {name: model.predict([input_data])[0] for name, model in models.items()}
-        
-        # Tính sai số
-        for name, pred in predictions.items():
-            absolute_error = abs(actual_price - pred)
-            relative_error = (absolute_error / actual_price) * 100 if actual_price != 0 else 0
-            errors[name] = {
-                'pred': pred,
-                'abs_error': absolute_error,
-                'rel_error': relative_error
-            }
-        
-        prediction = predictions
-
-    return render_template("index.html", prediction=prediction, actual_price=actual_price, errors=errors)
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
+    # Hiển thị kết quả dự đoán và sai số
+    st.subheader("Kết quả dự đoán:")
+    for name, pred in predictions.items():
+        absolute_error = abs(actual_price - pred)
+        relative_error = (absolute_error / actual_price) * 100 if actual_price != 0 else 0
+        st.write(f"{name}:")
+        st.write(f"  - Dự đoán: {pred:.2f}")
+        st.write(f"  - Sai số tuyệt đối: {absolute_error:.2f}")
+        st.write(f"  - Sai số tương đối: {relative_error:.2f}%")
