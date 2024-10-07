@@ -7,6 +7,7 @@ from sklearn.ensemble import StackingRegressor
 from sklearn.model_selection import train_test_split
 
 # Huấn luyện các mô hình
+@st.cache_resource
 def train_models():
     df = pd.read_csv('Gold_Price.csv')  # Đường dẫn đến file CSV của bạn
     X = df.drop(columns=['Price', 'Date'])
@@ -46,11 +47,11 @@ st.dataframe(df)
 # Nhập liệu từ người dùng
 if 'input_data' not in st.session_state:
     st.session_state.input_data = {
-        'Open': 0.0,
-        'High': 0.0,
-        'Low': 0.0,
-        'Volume': 0.0,
-        'Chg%': 0.0
+        'Open': 29435,
+        'High': 29598,
+        'Low': 29340,
+        'Volume': 2390,
+        'Chg%': 0.25
     }
 
 # Nhập liệu
@@ -67,6 +68,7 @@ st.session_state.input_data['Low'] = low_price
 st.session_state.input_data['Volume'] = volume
 st.session_state.input_data['Chg%'] = chg
 
+# Dự đoán khi nhấn nút
 if st.button("Dự đoán"):
     input_data = [open_price, high_price, low_price, volume, chg]
 
@@ -77,5 +79,4 @@ if st.button("Dự đoán"):
     st.subheader("Kết quả dự đoán:")
     for name, pred in predictions.items():
         st.write(f"{name}: {pred:.2f}")
-
 
