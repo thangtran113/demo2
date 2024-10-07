@@ -32,17 +32,40 @@ def train_models():
         'Stacking': model_stack
     }
 
+# Tải mô hình
 models = train_models()
 
 # Giao diện người dùng
 st.title("Dự đoán Giá Vàng")
 
+# Đọc và hiển thị bảng CSV
+df = pd.read_csv('Gold_Price.csv')  # Đường dẫn đến file CSV của bạn
+st.subheader("Dữ liệu Giá Vàng")
+st.dataframe(df)
+
 # Nhập liệu từ người dùng
-open_price = st.number_input("Nhập giá mở cửa (Open):")
-high_price = st.number_input("Nhập giá cao nhất (High):")
-low_price = st.number_input("Nhập giá thấp nhất (Low):")
-volume = st.number_input("Nhập khối lượng (Volume):")
-chg = st.number_input("Nhập thay đổi (%) (Chg%):")
+if 'input_data' not in st.session_state:
+    st.session_state.input_data = {
+        'Open': 0.0,
+        'High': 0.0,
+        'Low': 0.0,
+        'Volume': 0.0,
+        'Chg%': 0.0
+    }
+
+# Nhập liệu
+open_price = st.number_input("Nhập giá mở cửa (Open):", value=st.session_state.input_data['Open'])
+high_price = st.number_input("Nhập giá cao nhất (High):", value=st.session_state.input_data['High'])
+low_price = st.number_input("Nhập giá thấp nhất (Low):", value=st.session_state.input_data['Low'])
+volume = st.number_input("Nhập khối lượng (Volume):", value=st.session_state.input_data['Volume'])
+chg = st.number_input("Nhập thay đổi (%) (Chg%):", value=st.session_state.input_data['Chg%'])
+
+# Lưu số liệu nhập trước đó
+st.session_state.input_data['Open'] = open_price
+st.session_state.input_data['High'] = high_price
+st.session_state.input_data['Low'] = low_price
+st.session_state.input_data['Volume'] = volume
+st.session_state.input_data['Chg%'] = chg
 
 if st.button("Dự đoán"):
     input_data = [open_price, high_price, low_price, volume, chg]
@@ -54,4 +77,5 @@ if st.button("Dự đoán"):
     st.subheader("Kết quả dự đoán:")
     for name, pred in predictions.items():
         st.write(f"{name}: {pred:.2f}")
+
 
